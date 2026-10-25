@@ -886,6 +886,23 @@ var _ = Describe("Legacy Options", func() {
 					TLS:               tlsConfigMinVersion,
 				},
 			}),
+			Entry("with TLS client CA configured", legacyServersTableInput{
+				legacyServer: LegacyServer{
+					HTTPAddress:     insecureAddr,
+					HTTPSAddress:    secureAddr,
+					TLSKeyFile:      keyPath,
+					TLSCertFile:     crtPath,
+					TLSClientCAFile: "client-ca.pem",
+				},
+				expectedAppServer: Server{
+					SecureBindAddress: secureAddr,
+					TLS: &TLS{
+						Cert:     tlsConfig.Cert,
+						Key:      tlsConfig.Key,
+						ClientCA: &SecretSource{FromFile: "client-ca.pem"},
+					},
+				},
+			}),
 			Entry("with TLS options specified with CipherSuites", legacyServersTableInput{
 				legacyServer: LegacyServer{
 					HTTPAddress:     insecureAddr,
