@@ -3,6 +3,7 @@ package proxyhttp
 import (
 	"context"
 	"crypto/tls"
+	"crypto/x509"
 	"errors"
 	"fmt"
 	"net"
@@ -195,6 +196,19 @@ func (s *server) setupTLSListener(opts Opts) error {
 		return fmt.Errorf("could not load certificate: %v", err)
 	}
 	config.Certificates = []tls.Certificate{cert}
+
+	if opts.TLS.ClientCA != nil {
+		caData, err := getSecretValue(opts.TLS.ClientCA)
+		if err != nil {
+			return fmt.Errorf("could not load client CA: %v", err)
+		}
+		clientCAs := x509.NewCertPool()
+		if ok := clientCAs.AppendCertsFromPEM(caData); !ok {
+			return errors.New("could not parse client CA certificates")
+		}
+		config.ClientCAs = clientCAs
+		config.ClientAuth = tls.RequireAndVerifyClientCert
+	}
 
 	if len(opts.TLS.CipherSuites) > 0 {
 		cipherSuites, err := parseCipherSuites(opts.TLS.CipherSuites)
