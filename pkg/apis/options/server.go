@@ -43,6 +43,7 @@ type TLS struct {
 	// When configured, HTTPS clients must present a certificate issued by one of these authorities.
 	ClientCA *SecretSource `yaml:"clientCA,omitempty"`
 
+
 	// CipherSuites is a list of TLS cipher suites that are allowed.
 	// E.g.:
 	// - TLS_RSA_WITH_RC4_128_SHA
