@@ -2,7 +2,7 @@ package proxyhttp
 
 import (
 	"context"
-		"errors"
+	"errors"
 	"fmt"
 	"io"
 	"net"
