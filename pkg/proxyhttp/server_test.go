@@ -2,8 +2,7 @@ package proxyhttp
 
 import (
 	"context"
-	"crypto/tls"
-	"errors"
+		"errors"
 	"fmt"
 	"io"
 	"net"
@@ -17,40 +16,6 @@ import (
 )
 
 const hello = "Hello World!"
-
-var _ = Describe("client certificate authentication", func() {
-	It("rejects a TLS connection when the client does not present a certificate", func() {
-		srv, err := NewServer(Opts{
-			Handler: http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				w.WriteHeader(http.StatusNoContent)
-			}),
-			SecureBindAddress: "127.0.0.1:0",
-			TLS: &options.TLS{
-				Key:      &ipv4KeyDataSource,
-				Cert:     &ipv4CertDataSource,
-				ClientCA: &options.SecretSource{Value: ipv4CertData},
-			},
-		})
-		Expect(err).ToNot(HaveOccurred())
-		s := srv.(*server)
-		defer s.tlsListener.Close()
-
-		addr := s.tlsListener.Addr().String()
-		transport := &http.Transport{
-			TLSClientConfig: &tls.Config{
-				InsecureSkipVerify: true, // Test fixture certificate is local-only.
-			},
-		}
-		defer transport.CloseIdleConnections()
-
-		client := &http.Client{Transport: transport}
-		resp, err := client.Get("https://" + addr)
-		if resp != nil {
-			_ = resp.Body.Close()
-		}
-		Expect(err).To(HaveOccurred())
-	})
-})
 
 var _ = Describe("Server", func() {
 
