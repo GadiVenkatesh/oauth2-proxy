@@ -145,6 +145,20 @@ var _ = Describe("Server", func() {
 				expectHTTPListener: false,
 				expectTLSListener:  true,
 			}),
+			Entry("with client CA file that cannot be read", &newServerTableInput{
+				opts: Opts{
+					Handler:           handler,
+					SecureBindAddress: "127.0.0.1:0",
+					TLS: &options.TLS{
+						Key:      &ipv4KeyDataSource,
+						Cert:     &ipv4CertDataSource,
+						ClientCA: &options.SecretSource{FromFile: "file-that-does-not-exist.pem"},
+					},
+				},
+				expectedErr:        errors.New("error setting up TLS listener: could not load client CA:"),
+				expectHTTPListener: false,
+				expectTLSListener:  false,
+			}),
 			Entry("with a valid client CA requiring client certificate authentication", &newServerTableInput{
 				opts: Opts{
 					Handler:           handler,
