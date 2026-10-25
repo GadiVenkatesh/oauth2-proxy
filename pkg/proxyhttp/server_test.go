@@ -145,6 +145,34 @@ var _ = Describe("Server", func() {
 				expectHTTPListener: false,
 				expectTLSListener:  true,
 			}),
+			Entry("with a valid client CA requiring client certificate authentication", &newServerTableInput{
+				opts: Opts{
+					Handler:           handler,
+					SecureBindAddress: "127.0.0.1:0",
+					TLS: &options.TLS{
+						Key:      &ipv4KeyDataSource,
+						Cert:     &ipv4CertDataSource,
+						ClientCA: &options.SecretSource{Value: ipv4CertData},
+					},
+				},
+				expectedErr:        nil,
+				expectHTTPListener: false,
+				expectTLSListener:  true,
+			}),
+			Entry("with an invalid client CA bundle", &newServerTableInput{
+				opts: Opts{
+					Handler:           handler,
+					SecureBindAddress: "127.0.0.1:0",
+					TLS: &options.TLS{
+						Key:      &ipv4KeyDataSource,
+						Cert:     &ipv4CertDataSource,
+						ClientCA: &options.SecretSource{Value: []byte("not a PEM certificate")},
+					},
+				},
+				expectedErr:        errors.New("error setting up TLS listener: could not parse client CA certificates"),
+				expectHTTPListener: false,
+				expectTLSListener:  false,
+			}),
 			Entry("with a both a fd valid http and ipv4 valid https bind address, and valid TLS config", &newServerTableInput{
 				opts: Opts{
 					Handler:           handler,
