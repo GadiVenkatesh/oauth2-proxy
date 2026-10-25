@@ -515,6 +515,33 @@ stringSliceOption:
 		)
 	})
 
+	It("should load TLS client CA from alpha server configuration", func() {
+		config := []byte(`
+server:
+  secureBindAddress: "127.0.0.1:4180"
+  tls:
+    key:
+      fromFile: /etc/oauth2-proxy/tls.key
+    cert:
+      fromFile: /etc/oauth2-proxy/tls.crt
+    clientCA:
+      fromFile: /etc/oauth2-proxy/client-ca.pem
+`)
+
+		configFile, err := os.CreateTemp("", "oauth2-proxy-test-alpha-mtls-config")
+		Expect(err).ToNot(HaveOccurred())
+		defer os.Remove(configFile.Name())
+		defer configFile.Close()
+
+		_, err = configFile.Write(config)
+		Expect(err).ToNot(HaveOccurred())
+
+		into := &AlphaOptions{}
+		Expect(LoadYAML(configFile.Name(), into)).To(Succeed())
+		Expect(into.Server.TLS).ToNot(BeNil())
+		Expect(into.Server.TLS.ClientCA).To(Equal(&SecretSource{FromFile: "/etc/oauth2-proxy/client-ca.pem"}))
+	})
+
 	It("should load a full example AlphaOptions", func() {
 		config := []byte(`
 upstreamConfig:

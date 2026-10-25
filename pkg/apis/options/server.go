@@ -39,6 +39,10 @@ type TLS struct {
 	// E.g. Set to "TLS1.3" to select TLS version 1.3
 	MinVersion string `yaml:"minVersion,omitempty"`
 
+	// ClientCA is a PEM-encoded file containing trusted certificate authorities for incoming client certificates.
+	// When configured, HTTPS clients must present a certificate issued by one of these authorities.
+	ClientCA *SecretSource `yaml:"clientCA,omitempty"`
+
 	// CipherSuites is a list of TLS cipher suites that are allowed.
 	// E.g.:
 	// - TLS_RSA_WITH_RC4_128_SHA
